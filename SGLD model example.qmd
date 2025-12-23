@@ -1,0 +1,34 @@
+---
+title: "SGLD model example"
+format: html
+editor: visual
+---
+
+Stochastic Gradient Langevin Dynamics to approximate the posterior distribution of the parameter X with prior density normal(0, sigma_x) based on N observations of a normal(X, sigma_y) random variable Y
+
+```{r}
+N <- 100 # sample size
+trueX <- -3 # set parameters of the normal distribution of Y
+sigma_y <- 4
+y <- rnorm(N, mean = trueX, sd = sigma_y) # get sample of r.v. Y
+
+sigma_x <- 1 # sigma of prior density
+M <- 100000 # steps of Markov chain
+X <- numeric(M) # create Markov chain
+delta <- 1/N # step size
+m <- 10 # set subsample size
+
+## simulate Markov Chain
+X[1] <- 0 # set initial state
+for(n in 1:(M-1)){
+  Sm <- sample(y, size = m) # get subsample of size m of the observations y
+  # estimate gradient
+  gradient_est <- N/m*sum(Sm)/sigma_y^2 - X[n]*(1/sigma_x^2 + N/sigma_y^2) 
+  X[n+1] <- X[n] + delta/2*gradient_est + sqrt(delta)*rnorm(1) # update chain
+}
+# create histogram of Markov chain and add the true posterior density
+hist(X, freq = FALSE)
+sigma <- (1/sigma_x^2 + N/sigma_y^2)^(-1/2) # parameters of the posterior based on the sample y
+mu <- mean(y)*N/(sigma_y^2/sigma_x^2 + N)
+curve(1/sqrt(2*pi*sigma^2)*exp(-(x-mu)^2/(2*sigma^2)), add = TRUE) 
+```

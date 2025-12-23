@@ -1,0 +1,21 @@
+---
+title: "ULA model example"
+format: html
+editor: visual
+---
+
+Unadjusted Langevin Algorithm to approximate a normal distribution
+
+```{r}
+N <- 100000 # number of steps of the Markov chain
+delta <- 1 # step size
+X <- numeric(N) # create Markov chain
+mu <- -20 # setting the parameters of the distribution we want to approximate
+sigma <- 5
+X[1] <- 0 # set initial state of Markov chain
+for(n in 1:(N-1)){
+ X[n+1] <- X[n] + delta/2*(-(X[n]-mu)/sigma^2) + sqrt(delta)*rnorm(1) # update chain
+}
+hist(X, freq = FALSE) # histogram of Markov chain and adding desired normal density
+curve(1/sqrt(2*pi*sigma^2)*exp(-(x-mu)^2/(2*sigma^2)), add = TRUE) 
+```
